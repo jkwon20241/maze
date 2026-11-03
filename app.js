@@ -39,7 +39,7 @@
     ['37:7026', 'S', [['33:1557', '33:1485', 36, 355]],
       [back(), zoom('23:4805'), [153, 732, 96, 44, { t: 'nav', to: '36:4917' }], cta('37:7067')]],          // 22 Final word
     ['37:7067', 'S', [['33:1612', '33:1588', 36, 263]], [back(), zoom('23:4805'), cta('37:7104')]],          // 23 Your line
-    ['37:7104', 'S', [['33:1964', '33:1615', 36, 290]], [back(), zoom('23:4805'), cta('36:4533')]],          // 24 Book of lines
+    ['37:7104', 'S', [['33:1964', '33:1615', 36, 290]], [back(), zoom('23:4805'), [36, 786, 330, 50, { t: 'ov', to: '23:4805', then: '36:4533' }]]], // 24 Book of lines: START OVER shows the zoom-out first; its Close starts over
     ['37:7156', 'S', [['33:2399', '33:2373', 36, 245]],
       [back(), zoom('23:3089'), [160, 732, 82, 44, { t: 'back' }], cta('36:4917')]],                        // 25 Dead end
   ];
@@ -212,10 +212,12 @@
     },
   };
 
+  // zoom-out images were re-exported (footer shortened); the tag makes phones fetch the new ones
+  const src = (file) => 'img/' + file + (file.startsWith('o-') ? '?v=2' : '');
   function img(id) {
     const [file, ox, oy, w, h] = IMG[id];
     const el = new Image();
-    el.src = 'img/' + file;
+    el.src = src(file);
     el.alt = '';
     el.draggable = false;
     Object.assign(el.style, { left: ox + 'px', top: oy + 'px', width: w + 'px', height: h + 'px' });
@@ -363,13 +365,13 @@
       show(stack[stack.length - 1]);
     }
   });
-  function openOverlay(id) {
+  function openOverlay(id, then) {
     const el = document.createElement('div');
     el.className = 'overlay';
     el.appendChild(img(id));
     stage.appendChild(el);
     fadeIn(el, 0.4);
-    overlay = { el };
+    overlay = { el, then };
     setTheme('U');
     history.pushState({ overlay: 1 }, '');
   }
@@ -385,8 +387,17 @@
   function run(a) {
     if (a.t === 'nav') navigate(a.to);
     else if (a.t === 'back') goBack();
-    else if (a.t === 'ov') openOverlay(a.to);
-    else if (a.t === 'close') history.back();
+    else if (a.t === 'ov') openOverlay(a.to, a.then);
+    else if (a.t === 'close') {
+      if (overlay && overlay.then) {
+        // ending page: Close starts over, taking the overlay's history entry
+        const to = overlay.then;
+        closeOverlay();
+        stack.push({ id: to, states: {} });
+        history.replaceState({ depth: stack.length }, '');
+        show(stack[stack.length - 1]);
+      } else history.back();
+    }
   }
 
   /* ---------- hit testing (touch-friendly: exact hit first, then nearest target within reach) ---------- */
@@ -517,7 +528,7 @@
     if (loaded.has(id) || !IMG[id]) return;
     loaded.add(id);
     const i = new Image();
-    i.src = 'img/' + IMG[id][0];
+    i.src = src(IMG[id][0]);
   }
   function screenAssets(id) {
     const s = SCREEN[id];
