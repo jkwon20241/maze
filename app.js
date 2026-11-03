@@ -185,6 +185,10 @@
   }
   window.addEventListener('resize', layout);
   window.addEventListener('orientationchange', () => setTimeout(layout, 300));
+  // home-screen apps can settle their size (and safe-area insets) after first paint
+  window.addEventListener('pageshow', layout);
+  if (window.visualViewport) visualViewport.addEventListener('resize', layout);
+  [100, 400, 1000].forEach((t) => setTimeout(layout, t));
   layout();
 
 

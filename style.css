@@ -28,6 +28,12 @@ body {
   background-color: var(--bg);
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
+/* iOS 26 home-screen app (WebKit bug 301108): the viewport comes up short by the status-bar height and
+   nothing is drawn below it, cutting off the bottom. Stretch the page and the app back to the full screen. */
+@media (display-mode: standalone) {
+  html { min-height: min(100lvh, calc(100% + env(safe-area-inset-top))); }
+  #app { bottom: auto; height: min(100lvh, calc(100% + env(safe-area-inset-top))); }
+}
 /* thin strips pinned to the top and bottom edges: Safari tints its status bar and toolbar from what touches the edges */
 .edge {
   position: fixed;
