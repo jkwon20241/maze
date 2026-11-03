@@ -157,7 +157,7 @@
     const vw = window.innerWidth, vh = window.innerHeight;
     const phone = Math.min(vw, vh) < 600 && matchMedia('(pointer: coarse)').matches;
     const pad = phone ? 0 : Math.max(16, Math.min(40, vh * 0.04));
-    const bottom = phone ? 0 : (vw > 900 ? 34 : pad);
+    const bottom = pad;
     scale = Math.min((vw - pad * 2) / W, (vh - pad - bottom) / H);
     frame.style.width = W * scale + 'px';
     frame.style.height = H * scale + 'px';
@@ -165,7 +165,6 @@
     frame.style.marginBottom = bottom - pad + 'px';
     stage.style.transform = `scale(${scale})`;
     document.body.classList.toggle('framed', !phone);
-    document.body.classList.toggle('roomy', !phone && vw > 900);
   }
   window.addEventListener('resize', layout);
   layout();
@@ -215,8 +214,6 @@
 
   function setTheme(bg) {
     document.documentElement.style.setProperty('--bg', BG[bg]);
-    document.querySelector('meta[name=theme-color]').content = BG[bg];
-    document.body.classList.toggle('dark', bg === 'U');
   }
 
   function show(entry, d = 0.35) {

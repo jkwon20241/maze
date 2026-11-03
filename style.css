@@ -8,8 +8,7 @@
 html, body {
   margin: 0;
   height: 100%;
-  background: var(--bg);
-  transition: background-color .35s ease;
+  background: #fff;
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -31,9 +30,6 @@ body {
   overflow: hidden;
   background: var(--bg);
   transition: background-color .35s ease;
-}
-body.framed #frame {
-  box-shadow: 0 0 0 1px rgba(76, 55, 44, .18), 0 24px 60px rgba(40, 26, 18, .28);
 }
 #stage {
   position: absolute;
@@ -72,18 +68,3 @@ body.framed #frame {
   20% { opacity: 1; }
   100% { opacity: 0; }
 }
-#credit {
-  display: none;
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: max(10px, env(safe-area-inset-bottom));
-  margin: 0;
-  text-align: center;
-  font: 14px/1.4 "Goudy Bookletter 1911", Georgia, serif;
-  letter-spacing: .02em;
-  color: rgba(76, 55, 44, .7);
-  pointer-events: none;
-}
-body.dark #credit { color: rgba(230, 216, 183, .6); }
-body.framed.roomy #credit { display: block; }
