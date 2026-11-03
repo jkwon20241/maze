@@ -1,0 +1,89 @@
+:root {
+  --sand: #E6D8B7;
+  --umber: #4C372C;
+  --vermilion: #DC4733;
+  --bg: var(--sand);
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  transition: background-color .35s ease;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+#app {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+#frame {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  transition: background-color .35s ease;
+}
+body.framed #frame {
+  box-shadow: 0 0 0 1px rgba(76, 55, 44, .18), 0 24px 60px rgba(40, 26, 18, .28);
+}
+#stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 402px;
+  height: 874px;
+  transform-origin: 0 0;
+  touch-action: none;
+  cursor: pointer;
+}
+.screen, .overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.screen img, .overlay img, .inst img {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.inst { position: absolute; }
+.fade { transition-property: opacity; transition-timing-function: ease-in-out; }
+.hint {
+  position: absolute;
+  border: 2px solid var(--vermilion);
+  border-radius: 6px;
+  background: rgba(220, 71, 51, .10);
+  pointer-events: none;
+  opacity: 0;
+  animation: hint .9s ease-out;
+}
+@keyframes hint {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+#credit {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  margin: 0;
+  text-align: center;
+  font: 14px/1.4 "Goudy Bookletter 1911", Georgia, serif;
+  letter-spacing: .02em;
+  color: rgba(76, 55, 44, .7);
+  pointer-events: none;
+}
+body.dark #credit { color: rgba(230, 216, 183, .6); }
+body.framed.roomy #credit { display: block; }
