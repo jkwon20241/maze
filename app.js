@@ -3,6 +3,21 @@
    Images are Figma renders; see assets.js. */
 (() => {
   'use strict';
+  /* ---------- stale-copy check: if the published page has a newer version, load it ---------- */
+  (function () {
+    const mine = ((document.currentScript && document.currentScript.src) || '').match(/v=(\w+)/);
+    if (!mine) return;
+    fetch('./?check=' + Date.now(), { cache: 'no-store' })
+      .then((r) => r.text())
+      .then((t) => {
+        const live = t.match(/app\.js\?v=(\w+)/);
+        if (!live || live[1] === mine[1]) return;
+        let tried = false;
+        try { tried = sessionStorage.getItem('maze-upd') === live[1]; sessionStorage.setItem('maze-upd', live[1]); } catch (e) {}
+        if (!tried) location.replace(location.pathname + '?v=' + live[1]);
+      })
+      .catch(() => {});
+  })();
   const W = 402, H = 874;
   const IMG = window.MAZE_IMG;
   const BG = { S: '#E6D8B7', U: '#4C372C' };
