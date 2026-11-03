@@ -8,7 +8,8 @@
 html, body {
   margin: 0;
   height: 100%;
-  background: #fff;
+  background: var(--bg);
+  transition: background-color .35s ease;
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -19,17 +20,17 @@ body {
   user-select: none;
   touch-action: none;
 }
+/* the app fills the whole screen; content stays inside the notch / home-bar safe area */
 #app {
   position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 #frame {
   position: relative;
   overflow: hidden;
-  background: var(--bg);
-  transition: background-color .35s ease;
 }
 #stage {
   position: absolute;

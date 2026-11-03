@@ -152,21 +152,23 @@
   /* ---------- DOM + scaling ---------- */
   const frame = document.getElementById('frame');
   const stage = document.getElementById('stage');
+  // Full-screen app layout: the mock iPhone status bar (top 50) and home indicator (below 850)
+  // are cropped off, the rest is scaled to fit inside the device's safe area, and the page
+  // background takes the screen's colour so the app runs edge to edge.
+  const TOP = 50, BOTTOM = 850, VISIBLE = BOTTOM - TOP;
+  const appEl = document.getElementById('app');
   let scale = 1;
   function layout() {
-    const vw = window.innerWidth, vh = window.innerHeight;
-    const phone = Math.min(vw, vh) < 600 && matchMedia('(pointer: coarse)').matches;
-    const pad = phone ? 0 : Math.max(16, Math.min(40, vh * 0.04));
-    const bottom = pad;
-    scale = Math.min((vw - pad * 2) / W, (vh - pad - bottom) / H);
+    const cs = getComputedStyle(appEl);
+    const aw = appEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const ah = appEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    scale = Math.min(aw / W, ah / VISIBLE);
     frame.style.width = W * scale + 'px';
-    frame.style.height = H * scale + 'px';
-    frame.style.borderRadius = phone ? '0' : 55 * scale + 'px';
-    frame.style.marginBottom = bottom - pad + 'px';
-    stage.style.transform = `scale(${scale})`;
-    document.body.classList.toggle('framed', !phone);
+    frame.style.height = VISIBLE * scale + 'px';
+    stage.style.transform = `translateY(${-TOP * scale}px) scale(${scale})`;
   }
   window.addEventListener('resize', layout);
+  window.addEventListener('orientationchange', () => setTimeout(layout, 300));
   layout();
 
   function img(id) {
@@ -214,6 +216,7 @@
 
   function setTheme(bg) {
     document.documentElement.style.setProperty('--bg', BG[bg]);
+    document.querySelector('meta[name=theme-color]').content = BG[bg];
   }
 
   function show(entry, d = 0.35) {

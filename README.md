@@ -4,7 +4,9 @@ A touch prototype by ÆEEEE about the Providence Athenæum. Six questions take y
 
 **Open it:** https://jkwon20241.github.io/maze/
 
-Works on phones, tablets and desktop. Everything responds to touch:
+Works on phones, tablets and desktop and fills the whole screen like an app. For no browser bars at all, open it in Safari, tap Share, then **Add to Home Screen**.
+
+Everything responds to touch:
 
 - **Tap** buttons, drawers, cards, spines, the ladder, words and chips. Taps that land just outside a small target still count.
 - **Drag** along the sliders and down the list of lines to scrub through them.
