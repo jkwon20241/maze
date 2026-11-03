@@ -20,12 +20,13 @@ body {
   user-select: none;
   touch-action: none;
 }
-/* the whole 402 x 874 frame, centred at actual size (scaled down only if the window is smaller) */
+/* the app band (mock status bar and home indicator cropped), centred inside the device's safe area */
 #app {
   position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 #frame {
   position: relative;
@@ -56,9 +57,6 @@ body {
 .inst img { will-change: opacity, transform; }
 .live { position: absolute; left: 0; top: 0; overflow: visible; }
 .live > * { transform-box: view-box; transform-origin: 0 0; }
-/* added to the home screen, the phone's own status bar sits where the mock one is: hide the mock one */
-#statusmask { position: absolute; left: 0; top: 0; width: 100%; background: var(--bg); transition: background-color .35s ease; pointer-events: none; display: none; }
-.standalone #statusmask { display: block; }
 .fade { transition-property: opacity; transition-timing-function: ease-in-out; }
 .hint {
   position: absolute;

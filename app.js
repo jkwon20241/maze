@@ -152,19 +152,21 @@
   /* ---------- DOM + scaling ---------- */
   const frame = document.getElementById('frame');
   const stage = document.getElementById('stage');
-  // Actual size: the whole 402 x 874 frame (status bar included), shown 1:1 in CSS pixels —
-  // on an iPhone 17 Pro that is exactly the screen. Smaller windows scale the whole frame down
-  // to fit; nothing is ever enlarged or cropped. The page around it takes the screen's colour.
+  // Viewers use their own phone's status bar and home bar, so the mock ones in the design are
+  // cropped off: only the band from y 50 (below the 9:41 / Dynamic Island row) to y 850 (above
+  // the home indicator line) is shown. It sits inside the device's safe area at actual size,
+  // scaled down only if the window is smaller. The page around it takes the screen's colour.
+  const TOP = 50, BOTTOM = 850, VISIBLE = BOTTOM - TOP;
   const appEl = document.getElementById('app');
-  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  document.body.classList.toggle('standalone', standalone);
   let scale = 1;
   function layout() {
-    scale = Math.min(1, appEl.clientWidth / W, appEl.clientHeight / H);
+    const cs = getComputedStyle(appEl);
+    const aw = appEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const ah = appEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    scale = Math.min(1, aw / W, ah / VISIBLE);
     frame.style.width = W * scale + 'px';
-    frame.style.height = H * scale + 'px';
-    stage.style.transform = `scale(${scale})`;
-    document.getElementById('statusmask').style.height = 50 * scale + 'px';
+    frame.style.height = VISIBLE * scale + 'px';
+    stage.style.transform = `translateY(${-TOP * scale}px) scale(${scale})`;
   }
   window.addEventListener('resize', layout);
   window.addEventListener('orientationchange', () => setTimeout(layout, 300));
