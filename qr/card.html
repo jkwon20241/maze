@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MÆZE QR card</title>
+<style>
+  @page { size: 4in 6in; margin: 0; }
+  html, body { margin: 0; background: #E6D8B7; }
+  .card {
+    width: 4in; height: 6in; box-sizing: border-box;
+    padding: .45in .4in .4in;
+    display: flex; flex-direction: column; align-items: center;
+    color: #4C372C; font-family: "Iowan Old Style", "Palatino", Georgia, serif;
+    text-align: center;
+  }
+  .mark { width: 2.2in; height: .62in; object-fit: cover; object-position: center 52%; }
+  .qr { width: 2.7in; height: 2.7in; margin-top: .25in; }
+  .lead { font-size: 15pt; margin: .2in 0 0; letter-spacing: .02em; }
+  .tip { font-size: 9.5pt; line-height: 1.45; margin: auto 0 0; opacity: .85; }
+  .tip b { font-weight: 600; }
+  .url { font-size: 8pt; margin-top: .12in; letter-spacing: .04em; opacity: .7; }
+</style>
+</head>
+<body>
+<div class="card">
+  <img class="mark" src="../icon-512.png" alt="MÆZE">
+  <img class="qr" src="maze-qr.svg" alt="QR code for jkwon20241.github.io/maze">
+  <p class="lead">Scan to begin</p>
+  <p class="tip">For full screen, like an app:<br>
+    iPhone: tap <b>Share</b>, then <b>Add to Home Screen</b><br>
+    Android: tap <b>⋮</b>, then <b>Add to Home screen</b></p>
+  <div class="url">jkwon20241.github.io/maze</div>
+</div>
+</body>
+</html>

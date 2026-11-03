@@ -535,6 +535,19 @@
     setTimeout(() => Object.keys(IMG).forEach(preload), 1200);
   });
 
+  /* ---------- full screen on touch devices that allow it (Android, iPad; not iPhone Safari) ---------- */
+  (function () {
+    const de = document.documentElement;
+    const req = de.requestFullscreen || de.webkitRequestFullscreen;
+    if (!req || !matchMedia('(pointer: coarse)').matches || matchMedia('(display-mode: standalone)').matches) return;
+    document.addEventListener('pointerup', () => {
+      if (document.fullscreenElement || document.webkitFullscreenElement) return;
+      try { const p = req.call(de, { navigationUI: 'hide' }); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+    }, { once: true });
+    document.addEventListener('fullscreenchange', layout);
+    document.addEventListener('webkitfullscreenchange', layout);
+  })();
+
   /* ---------- start ---------- */
   stack.push({ id: '36:4533', states: {} });
   history.replaceState({ depth: 1 }, '');
