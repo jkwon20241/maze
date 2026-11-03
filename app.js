@@ -163,7 +163,7 @@
     const cs = getComputedStyle(appEl);
     const aw = appEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     const ah = appEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-    scale = Math.min(1, aw / W, ah / VISIBLE);
+    scale = Math.min(aw / W, ah / VISIBLE);
     frame.style.width = W * scale + 'px';
     frame.style.height = VISIBLE * scale + 'px';
     stage.style.transform = `translateY(${-TOP * scale}px) scale(${scale})`;
@@ -256,8 +256,11 @@
   }
 
   function setTheme(bg) {
-    document.documentElement.style.setProperty('--bg', BG[bg]);
-    document.querySelector('meta[name=theme-color]').content = BG[bg];
+    const c = BG[bg];
+    document.documentElement.style.setProperty('--bg', c);
+    document.documentElement.style.backgroundColor = c;
+    document.body.style.backgroundColor = c;
+    document.querySelector('meta[name=theme-color]').content = c;
   }
 
   function show(entry, d = 0.25) {
