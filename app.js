@@ -152,24 +152,63 @@
   /* ---------- DOM + scaling ---------- */
   const frame = document.getElementById('frame');
   const stage = document.getElementById('stage');
-  // Full-screen app layout: the mock iPhone status bar (top 50) and home indicator (below 850)
-  // are cropped off, the rest is scaled to fit inside the device's safe area, and the page
-  // background takes the screen's colour so the app runs edge to edge.
-  const TOP = 50, BOTTOM = 850, VISIBLE = BOTTOM - TOP;
+  // Actual size: the whole 402 x 874 frame (status bar included), shown 1:1 in CSS pixels —
+  // on an iPhone 17 Pro that is exactly the screen. Smaller windows scale the whole frame down
+  // to fit; nothing is ever enlarged or cropped. The page around it takes the screen's colour.
   const appEl = document.getElementById('app');
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  document.body.classList.toggle('standalone', standalone);
   let scale = 1;
   function layout() {
-    const cs = getComputedStyle(appEl);
-    const aw = appEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    const ah = appEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-    scale = Math.min(aw / W, ah / VISIBLE);
+    scale = Math.min(1, appEl.clientWidth / W, appEl.clientHeight / H);
     frame.style.width = W * scale + 'px';
-    frame.style.height = VISIBLE * scale + 'px';
-    stage.style.transform = `translateY(${-TOP * scale}px) scale(${scale})`;
+    frame.style.height = H * scale + 'px';
+    stage.style.transform = `scale(${scale})`;
+    document.getElementById('statusmask').style.height = 50 * scale + 'px';
   }
   window.addEventListener('resize', layout);
   window.addEventListener('orientationchange', () => setTimeout(layout, 300));
   layout();
+
+
+  /* ---------- live vector components (animate like Figma Smart Animate, no image blending) ---------- */
+  // Portal / Nested: [x, y, w, h, rotation, stroke, strokeWeight, spineX] per book, phase A and B
+  const PORTAL = {
+    '33:1978': [[10, 9, 200, 272, 0], [37, 46, 146, 198, 0], [63, 81, 94, 128, 0], [87, 114, 46, 62, 0], [106, 141]],
+    '33:1988': [[10, 9, 200, 272, 0], [44, 43, 146, 198, 2.5], [76, 75, 94, 128, -3], [104, 106, 46, 62, 4], [123, 133]],
+  };
+  const PORTAL_STYLE = [['#4C372C', 1, 16], ['#4C372C', 1, 11.68], ['#4C372C', 1, 7.52], ['#DC4733', 1.5, 6]];
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const LIVE = {
+    '33:1998': {
+      make(vid) {
+        const svg = document.createElementNS(SVGNS, 'svg');
+        svg.setAttribute('width', 220); svg.setAttribute('height', 290);
+        svg.setAttribute('viewBox', '0 0 220 290');
+        svg.classList.add('live');
+        PORTAL_STYLE.forEach(([c, sw, spine], i) => {
+          const g = document.createElementNS(SVGNS, 'g');
+          const [, , w, h] = PORTAL[vid][i];
+          g.innerHTML = `<rect x="${sw / 2}" y="${sw / 2}" width="${w - sw}" height="${h - sw}" fill="#E6D8B7" stroke="${c}" stroke-width="${sw}"/>` +
+            `<line x1="${spine}" y1="0" x2="${spine}" y2="${h}" stroke="${c}" stroke-width="1"/>`;
+          svg.appendChild(g);
+        });
+        const dot = document.createElementNS(SVGNS, 'circle');
+        dot.setAttribute('r', 4); dot.setAttribute('fill', '#DC4733');
+        svg.appendChild(dot);
+        this.apply(svg, vid, 0);
+        return svg;
+      },
+      apply(svg, vid, d) {
+        const parts = [...svg.children];
+        PORTAL[vid].forEach((p, i) => {
+          const el = parts[i];
+          el.style.transition = d ? `transform ${d}s cubic-bezier(.45,0,.25,1)` : 'none';
+          el.style.transform = i < 4 ? `translate(${p[0]}px, ${p[1]}px) rotate(${p[4]}deg)` : `translate(${p[0] + 4}px, ${p[1] + 4}px)`;
+        });
+      },
+    },
+  };
 
   function img(id) {
     const [file, ox, oy, w, h] = IMG[id];
@@ -207,7 +246,7 @@
       el.appendChild(box);
       const vid = entry.states[i] || start;
       const inst = { i, setId, x, y, vid, box, timer: 0, gen: 0 };
-      box.appendChild(img(vid));
+      box.appendChild(LIVE[setId] ? LIVE[setId].make(vid) : img(vid));
       return inst;
     });
     el.appendChild(img(entry.id));
@@ -219,14 +258,24 @@
     document.querySelector('meta[name=theme-color]').content = BG[bg];
   }
 
-  function show(entry, d = 0.35) {
+  function show(entry, d = 0.25) {
     const old = cur;
     if (old) old.insts.forEach((n) => clearTimeout(n.timer));
     cur = buildScreen(entry);
     stage.appendChild(cur.el);
     setTheme(cur.bg);
-    fadeIn(cur.el, old ? d : 0);
-    if (old) setTimeout(() => old.el.remove(), d * 1000 + 30);
+    // never two screens' text on top of each other: the old screen fades out first, then the new one fades in
+    if (old) {
+      const t = Math.min(Math.max(d, 0.25), 0.5);
+      old.el.style.transition = `opacity ${t * 0.45}s ease-in`;
+      old.el.style.opacity = '0';
+      old.el.style.zIndex = '1';
+      cur.el.style.opacity = '0';
+      void cur.el.offsetWidth;
+      cur.el.style.transition = `opacity ${t * 0.55}s ease-out ${t * 0.45}s`;
+      cur.el.style.opacity = '1';
+      setTimeout(() => old.el.remove(), t * 1000 + 30);
+    }
     cur.insts.forEach((n) => arm(n, 0));
     preloadAround(entry.id);
   }
@@ -241,26 +290,53 @@
     }
   }
 
+  // How a component moves to its next state. Flat pictures can't morph like Smart Animate, so
+  // two different pictures are never shown half-and-half on top of each other:
+  //  - live vector parts (the portal) animate for real;
+  //  - walk scenes "step in": the old view moves toward you and fades, then the new view settles in;
+  //  - the scale list only adds rows, so new rows fade in over the old picture;
+  //  - everything you tap (drawers, cards, spines, sliders, pages...) switches cleanly, like a real control.
+  const REVEAL = new Set(['33:2367']);
   function change(inst, to, d = 0.3) {
     if (!to || to === inst.vid) return;
     clearTimeout(inst.timer);
     inst.vid = to;
     cur.entry.states[inst.i] = to;
     const gen = ++inst.gen;
+    const live = LIVE[inst.setId];
+    if (live) {
+      live.apply(inst.box.firstChild, to, d);
+      arm(inst, d);
+      return;
+    }
     const next = img(to);
     const olds = [...inst.box.children];
-    inst.box.appendChild(next);
-    if (d > 0) {
-      fadeIn(next, d);
+    const done = (ms) => setTimeout(() => { if (inst.gen === gen) olds.forEach((o) => o.remove()); }, ms);
+    if (SETS[inst.setId].walk && d > 0) {
+      const t = Math.min(d, 1.1);
       olds.forEach((o) => {
-        o.classList.add('fade');
-        // keep the old state solid until the new one is mostly in, so nothing goes see-through mid-fade
-        o.style.transitionDuration = d * 0.35 + 's';
-        o.style.transitionDelay = d * 0.65 + 's';
+        o.style.transition = `opacity ${t * 0.45}s ease-in, transform ${t * 0.45}s ease-in`;
+        o.style.transformOrigin = '50% 45%';
+        o.style.transform = 'scale(1.08)';
         o.style.opacity = '0';
       });
-      setTimeout(() => { if (inst.gen === gen) olds.forEach((o) => o.remove()); }, d * 1000 + 40);
-    } else olds.forEach((o) => o.remove());
+      next.style.opacity = '0';
+      next.style.transform = 'scale(0.96)';
+      next.style.transformOrigin = '50% 45%';
+      inst.box.appendChild(next);
+      void next.offsetWidth;
+      next.style.transition = `opacity ${t * 0.55}s ease-out ${t * 0.45}s, transform ${t * 0.55}s ease-out ${t * 0.45}s`;
+      next.style.opacity = '1';
+      next.style.transform = 'none';
+      done(t * 1000 + 60);
+    } else if (REVEAL.has(inst.setId) && d > 0) {
+      inst.box.appendChild(next);
+      fadeIn(next, d);
+      done(d * 1000 + 40);
+    } else {
+      inst.box.appendChild(next);
+      olds.forEach((o) => o.remove());
+    }
     arm(inst, d);
   }
 
