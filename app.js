@@ -39,7 +39,7 @@
     ['36:5055', 'U', [['35:1600', '35:1315', 0, 0]], [back(), zoom('23:3512'), cta('36:5177')]],             // 07 Walk open the drawer
     ['36:5177', 'S', [['32:875', '32:821', 36, 344]], [back(), zoom('23:3512'), cta('36:5227')]],            // 08 Q2 Social
     ['36:5227', 'S', [['31:8394', '31:8124', 36, 332]], [back(), zoom('23:3725'), dead(), cta('36:5277')]],  // 09 Go Card
-    ['36:5277', 'S', [['31:8649', '31:8605', 36, 162], ['31:9017', '31:8654', 36, 405]],
+    ['36:5277', 'S', [['31:8649', '31:8605', 36, 154], ['31:9017', '31:8654', 36, 381]],
       [back(), zoom('23:3939'), dead(746, 36), cta('36:5350')]],                                             // 10 Your card
     ['36:5350', 'U', [['35:2903', '35:1604', 0, 0]], [back(), zoom('23:3939'), cta('36:5810')]],             // 11 Walk into the stacks
     ['36:5810', 'S', [['32:1815', '32:1350', 36, 339]], [back(), zoom('23:4154'), dead(), cta('36:5937')]],  // 12 Q3 Ladder
@@ -231,8 +231,8 @@
     },
   };
 
-  // zoom-out images were re-exported (footer shortened); the tag makes phones fetch the new ones
-  const src = (file) => 'img/' + file + (file.startsWith('o-') ? '?v=2' : '');
+  // re-exported images get a tag so phones fetch the new copies
+  const src = (file) => 'img/' + file + (/^(o-|s-36-5277)/.test(file) ? '?v=2' : '');
   function img(id) {
     const [file, ox, oy, w, h] = IMG[id];
     const el = new Image();
