@@ -134,8 +134,10 @@ html.desk #stage { cursor: default; }
 .d-how b { font-weight: 600; }
 .d-qr { display: flex; align-items: center; gap: 20px; margin-top: 30px; }
 .d-qr img { width: 88px; height: 88px; flex: none; box-sizing: content-box; }
-/* the code is trimmed so it lines up with the text; on the umber pages it needs its own sand margin to scan */
-html.desk[data-theme="U"] .d-qr img { padding: 8px; background: var(--sand); border-radius: 6px; }
+/* the code is trimmed so it lines up with the text; on the umber pages it needs a sand margin to scan.
+   That margin is drawn outside the box (box-shadow), so nothing in the column moves when the theme changes. */
+.d-qr img { border-radius: 2px; box-shadow: 0 0 0 8px transparent; transition: box-shadow .5s ease; }
+html.desk[data-theme="U"] .d-qr img { background: var(--sand); box-shadow: 0 0 0 8px var(--sand); }
 .d-qr p { margin: 0; font-size: 14px; line-height: 1.5; opacity: .85; }
 
 .d-map { position: relative; }
