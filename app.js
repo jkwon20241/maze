@@ -172,6 +172,7 @@
   // the home indicator line) is shown. It sits inside the device's safe area at actual size,
   // scaled down only if the window is smaller. The page around it takes the screen's colour.
   const TOP = 50, BOTTOM = 850, VISIBLE = BOTTOM - TOP;
+  const PAD = 26;  // desktop only: inner margin around the band inside the phone frame and the map card
   const appEl = document.getElementById('app');
   let scale = 1;
   // desktop = mouse/trackpad only (no touch at all) and a window wide and tall enough for the side columns
@@ -181,13 +182,24 @@
   function layout() {
     document.documentElement.classList.toggle('desk', isDesk());
     if (isDesk()) {
-      // the prototype keeps the phone's proportions, sized to the window height (never above 110%)
-      scale = Math.min((window.innerHeight - 96) / VISIBLE, 1.1);
-      frame.style.width = W * scale + 'px';
-      frame.style.height = VISIBLE * scale + 'px';
-      stage.style.transform = `translateY(${-TOP * scale}px) scale(${scale})`;
+      // phone frame and map card share one size: the visible band plus an inner margin (PAD) on every side.
+      // Scale to fit the window height (leaving room for the map's label and caption) and the width of the columns.
+      const vw = window.innerWidth, vh = window.innerHeight, three = vw >= 1200;
+      const intro = Math.min(340, Math.max(240, vw * 0.22)), gap = Math.min(120, Math.max(40, vw * 0.06));
+      const cardW = W + 2 * PAD, cardH = VISIBLE + 2 * PAD;
+      const sH = (vh - 96 - 84) / cardH, sW = (vw - 112 - intro - gap * (three ? 2 : 1)) / ((three ? 2 : 1) * cardW);
+      scale = Math.min(sH, sW, 1.1);
+      frame.style.width = cardW * scale + 'px';
+      frame.style.height = cardH * scale + 'px';
+      stage.style.transform = `translate(${PAD * scale}px, ${(PAD - TOP) * scale}px) scale(${scale})`;
+      stage.style.clipPath = `inset(${TOP}px 0 ${H - BOTTOM}px 0)`;
+      const rs = document.documentElement.style;
+      rs.setProperty('--card-w', cardW * scale + 'px');
+      rs.setProperty('--card-h', cardH * scale + 'px');
+      rs.setProperty('--s', scale);
       return;
     }
+    stage.style.clipPath = '';
     const cs = getComputedStyle(appEl);
     const aw = appEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     const ah = appEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);

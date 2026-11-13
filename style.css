@@ -102,7 +102,7 @@ html.desk body { touch-action: auto; }
 html.desk .edge { display: none; }
 html.desk #app {
   display: grid;
-  grid-template-columns: clamp(240px, 22vw, 340px) auto clamp(240px, 24vw, 360px);
+  grid-template-columns: clamp(240px, 22vw, 340px) auto auto;
   justify-content: center;
   align-items: center;
   column-gap: clamp(40px, 6vw, 120px);
@@ -112,7 +112,8 @@ html.desk #app {
 }
 html.desk .d-side { display: block; justify-self: stretch; transition: color .5s ease; }
 html.desk #frame {
-  border-radius: 30px;
+  border-radius: 34px;
+  background-color: var(--bg);
   box-shadow: 0 0 0 1px var(--line), 0 28px 70px -20px rgba(40, 26, 18, .45);
 }
 html.desk #stage { cursor: default; }
@@ -135,19 +136,32 @@ html.desk #stage { cursor: default; }
 .d-qr img { width: 96px; height: 96px; border-radius: 8px; flex: none; }
 .d-qr p { margin: 0; font-size: 14px; line-height: 1.5; opacity: .85; }
 
-.d-label, .d-level { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; margin: 0; }
-.d-label { opacity: .7; margin-bottom: 12px; }
+.d-map { position: relative; }
+.d-label, .d-level { position: absolute; left: 0; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; margin: 0; }
+.d-label { bottom: calc(100% + 14px); opacity: .7; }
+.d-level { top: calc(100% + 16px); display: flex; gap: 14px; }
+.d-level #d-level-n { opacity: .6; }
+/* same size as the phone frame (set from app.js), with the same inner margin */
 .d-map-view {
   position: relative;
-  width: min(100%, calc((100vh - 200px) * 402 / 734));
-  aspect-ratio: 402 / 734;
+  width: var(--card-w, 340px);
+  height: var(--card-h, 640px);
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: 34px;
   background: var(--umber);
-  box-shadow: 0 0 0 1px var(--line);
+  box-shadow: 0 0 0 1px var(--line), 0 28px 70px -20px rgba(40, 26, 18, .45);
 }
-/* the zoom-out render is 402 x 874; show y 86-820 (title to footer, without its own Close row) */
-.d-map-view img {
+/* the zoom-out render is 402 x 874; show y 86-820 (title to footer, without its own Close row),
+   centred in the 800-tall band so it lines up with the phone screen's margins */
+.d-map-crop {
+  position: absolute;
+  left: calc(26px * var(--s, 1));
+  top: calc((26px + 33px) * var(--s, 1));
+  width: calc(402px * var(--s, 1));
+  height: calc(734px * var(--s, 1));
+  overflow: hidden;
+}
+.d-map-crop img {
   position: absolute;
   left: 0;
   top: -11.717%;
@@ -156,8 +170,6 @@ html.desk #stage { cursor: default; }
   opacity: 0;
   transition: opacity .6s ease;
 }
-.d-level { display: flex; gap: 14px; margin-top: 14px; }
-.d-level #d-level-n { opacity: .6; }
 
 /* narrower desktop windows: drop the map, keep the intro beside the prototype */
 @media (max-width: 1199px) {
