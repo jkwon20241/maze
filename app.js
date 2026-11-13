@@ -174,7 +174,20 @@
   const TOP = 50, BOTTOM = 850, VISIBLE = BOTTOM - TOP;
   const appEl = document.getElementById('app');
   let scale = 1;
+  // desktop = mouse/trackpad only (no touch at all) and a window wide and tall enough for the side columns
+  const deskMQ = matchMedia('(min-width: 900px) and (min-height: 560px) and (hover: hover) and (pointer: fine)');
+  const touchMQ = matchMedia('(any-pointer: coarse)');
+  const isDesk = () => deskMQ.matches && !touchMQ.matches;
   function layout() {
+    document.documentElement.classList.toggle('desk', isDesk());
+    if (isDesk()) {
+      // the prototype keeps the phone's proportions, sized to the window height (never above 110%)
+      scale = Math.min((window.innerHeight - 96) / VISIBLE, 1.1);
+      frame.style.width = W * scale + 'px';
+      frame.style.height = VISIBLE * scale + 'px';
+      stage.style.transform = `translateY(${-TOP * scale}px) scale(${scale})`;
+      return;
+    }
     const cs = getComputedStyle(appEl);
     const aw = appEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     const ah = appEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
@@ -184,6 +197,7 @@
     stage.style.transform = `translateY(${-TOP * scale}px) scale(${scale})`;
   }
   window.addEventListener('resize', layout);
+  [deskMQ, touchMQ].forEach((m) => m.addEventListener && m.addEventListener('change', layout));
   window.addEventListener('orientationchange', () => setTimeout(layout, 300));
   // home-screen apps can settle their size (and safe-area insets) after first paint
   window.addEventListener('pageshow', layout);
@@ -282,6 +296,29 @@
     document.documentElement.style.backgroundColor = c;
     document.body.style.backgroundColor = c;
     document.querySelector('meta[name=theme-color]').content = c;
+    document.documentElement.dataset.theme = bg;
+  }
+
+  /* ---------- desktop side panel: the zoom-out map for the current screen ---------- */
+  const LEVELS = [['23:3089', 'The Athenæum'], ['23:3300', 'The card catalog'], ['23:3512', 'A drawer'],
+    ['23:3725', 'A card'], ['23:3939', 'A shelf'], ['23:4154', 'The ladder'], ['23:4370', 'A book'],
+    ['23:4587', 'A line'], ['23:4805', 'A word']];
+  const mapA = document.getElementById('d-map-a'), mapB = document.getElementById('d-map-b');
+  let mapFront = null, mapId = null;
+  function syncMap(id) {
+    if (!mapA) return;
+    const z = SCREEN[id] && SCREEN[id].hot.find(([, , , , a]) => a.t === 'ov');
+    const to = z ? z[4].to : (mapId || LEVELS[0][0]);  // the opening screen has no zoom button: show the whole building
+    if (to === mapId) return;
+    mapId = to;
+    const k = Math.max(0, LEVELS.findIndex(([o]) => o === mapId));
+    document.getElementById('d-level-n').textContent = (k + 1) + ' / ' + LEVELS.length;
+    document.getElementById('d-level-name').textContent = LEVELS[k][1];
+    const next = mapFront === mapA ? mapB : mapA;
+    next.src = src(IMG[mapId][0]);
+    next.style.opacity = '1';
+    if (mapFront) mapFront.style.opacity = '0';
+    mapFront = next;
   }
 
   function show(entry, d = 0.25) {
@@ -290,6 +327,7 @@
     cur = buildScreen(entry);
     stage.appendChild(cur.el);
     setTheme(cur.bg);
+    syncMap(entry.id);
     // never two screens' text on top of each other: the old screen fades out first, then the new one fades in
     if (old) {
       const t = Math.min(Math.max(d, 0.25), 0.5);

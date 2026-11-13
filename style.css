@@ -90,3 +90,77 @@ body {
   20% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* ---------- desktop (fine pointer, wide window): intro | prototype | live zoom-out map ----------
+   Phones and tablets never get the .desk class, so everything above stays their layout. */
+.d-side { display: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+html.desk { --fg: var(--umber); --line: rgba(76, 55, 44, .22); }
+html.desk[data-theme="U"] { --fg: var(--sand); --line: rgba(230, 216, 183, .22); }
+html.desk, html.desk body, html.desk #app { transition: background-color .5s ease; }
+html.desk body { touch-action: auto; }
+html.desk .edge { display: none; }
+html.desk #app {
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) auto clamp(240px, 24vw, 360px);
+  justify-content: center;
+  align-items: center;
+  column-gap: clamp(40px, 6vw, 120px);
+  padding: 48px 56px;
+  color: var(--fg);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+html.desk .d-side { display: block; justify-self: stretch; transition: color .5s ease; }
+html.desk #frame {
+  border-radius: 30px;
+  box-shadow: 0 0 0 1px var(--line), 0 28px 70px -20px rgba(40, 26, 18, .45);
+}
+html.desk #stage { cursor: default; }
+
+.d-intro { align-self: center; }
+.d-mark {
+  margin: 0;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 828 / 204;
+  background-color: currentColor;
+  -webkit-mask: url(img/wordmark.png) center / contain no-repeat;
+  mask: url(img/wordmark.png) center / contain no-repeat;
+}
+.d-by { margin: 22px 0 0; font-size: 15px; letter-spacing: .02em; opacity: .75; }
+.d-text { margin: 26px 0 0; font-size: 17px; line-height: 1.55; }
+.d-how { list-style: none; margin: 28px 0 0; padding: 18px 0 0; border-top: 1px solid var(--line); font-size: 14px; line-height: 1.9; opacity: .85; }
+.d-how b { font-weight: 600; }
+.d-qr { display: flex; align-items: center; gap: 16px; margin-top: 30px; }
+.d-qr img { width: 96px; height: 96px; border-radius: 8px; flex: none; }
+.d-qr p { margin: 0; font-size: 14px; line-height: 1.5; opacity: .85; }
+
+.d-label, .d-level { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; margin: 0; }
+.d-label { opacity: .7; margin-bottom: 12px; }
+.d-map-view {
+  position: relative;
+  width: min(100%, calc((100vh - 200px) * 402 / 734));
+  aspect-ratio: 402 / 734;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--umber);
+  box-shadow: 0 0 0 1px var(--line);
+}
+/* the zoom-out render is 402 x 874; show y 86-820 (title to footer, without its own Close row) */
+.d-map-view img {
+  position: absolute;
+  left: 0;
+  top: -11.717%;
+  width: 100%;
+  height: 119.07%;
+  opacity: 0;
+  transition: opacity .6s ease;
+}
+.d-level { display: flex; gap: 14px; margin-top: 14px; }
+.d-level #d-level-n { opacity: .6; }
+
+/* narrower desktop windows: drop the map, keep the intro beside the prototype */
+@media (max-width: 1199px) {
+  html.desk #app { grid-template-columns: clamp(240px, 30vw, 340px) auto; }
+  html.desk .d-map { display: none; }
+}

@@ -13,16 +13,37 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <meta name="description" content="MÆZE: six questions lead you from the Providence Athenæum's card catalog to one word in one book. A touch prototype by ÆEEEE.">
 <title>MÆZE</title>
-<link rel="stylesheet" href="style.css?v=20261103k">
+<link rel="stylesheet" href="style.css?v=20261113a">
 </head>
 <body>
 <main id="app" aria-label="MÆZE prototype">
+  <!-- desktop only: project intro (left) and live zoom-out map (right); hidden on phones and tablets -->
+  <aside class="d-side d-intro" aria-label="About MÆZE">
+    <h1 class="d-mark"><span class="sr">MÆZE</span></h1>
+    <p class="d-by">A wayfinding prototype for the Providence Athenæum, by ÆEEEE</p>
+    <p class="d-text">MÆZE treats the Athenæum not as a repository to be searched but as a labyrinth to be wandered. Six questions lead you from the card catalog, through the stacks and into the pages of one book, narrowing some 176,800 volumes down to a single word.</p>
+    <ul class="d-how">
+      <li><b>Click</b> buttons, drawers, cards, spines and words</li>
+      <li><b>Drag</b> along sliders and lists of lines</li>
+      <li><b>Swipe</b> to turn pages and flip cards</li>
+      <li><b>Esc</b> to go back</li>
+    </ul>
+    <div class="d-qr">
+      <img src="qr/maze-qr.svg" alt="QR code for jkwon20241.github.io/maze" width="96" height="96">
+      <p>Made for the hand.<br>Scan to walk it on your phone.</p>
+    </div>
+  </aside>
   <div id="frame">
     <div id="stage" role="application" aria-label="Tap, drag or swipe to explore"></div>
   </div>
+  <aside class="d-side d-map" aria-label="Zoom out: where you are">
+    <p class="d-label">Zoom out</p>
+    <div class="d-map-view"><img alt="" id="d-map-a"><img alt="" id="d-map-b"></div>
+    <p class="d-level"><span id="d-level-n">1 / 9</span><span id="d-level-name">The Athenæum</span></p>
+  </aside>
 </main>
 <div class="edge top"></div><div class="edge bottom"></div>
-<script src="assets.js?v=20261103k"></script>
-<script src="app.js?v=20261103k"></script>
+<script src="assets.js?v=20261113a"></script>
+<script src="app.js?v=20261113a"></script>
 </body>
 </html>

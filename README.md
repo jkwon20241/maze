@@ -4,7 +4,7 @@ A touch prototype by ÆEEEE about the Providence Athenæum. Six questions take y
 
 **Open it:** https://jkwon20241.github.io/maze/
 
-Works on phones, tablets and desktop and fills the whole screen like an app. For no browser bars at all, open it in Safari, tap Share, then **Add to Home Screen**.
+Works on phones, tablets and desktop. On phones and tablets it fills the whole screen like an app. On a desktop computer (mouse or trackpad, window at least 900 px wide) the prototype sits in the centre, with the project intro and a QR code on the left and a live zoom-out map on the right that follows where you are in the Athenæum (the map drops away below 1200 px wide). The page turns umber with the walking screens. For no browser bars at all, open it in Safari, tap Share, then **Add to Home Screen**.
 
 Everything responds to touch:
 
