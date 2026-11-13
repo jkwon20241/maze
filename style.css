@@ -123,17 +123,19 @@ html.desk #stage { cursor: default; }
   margin: 0;
   width: 100%;
   max-width: 300px;
-  aspect-ratio: 828 / 204;
+  aspect-ratio: 816 / 192;
   background-color: currentColor;
-  -webkit-mask: url(img/wordmark.png) center / contain no-repeat;
-  mask: url(img/wordmark.png) center / contain no-repeat;
+  -webkit-mask: url(img/wordmark.png) left center / contain no-repeat;
+  mask: url(img/wordmark.png) left center / contain no-repeat;
 }
 .d-by { margin: 22px 0 0; font-size: 15px; letter-spacing: .02em; opacity: .75; }
 .d-text { margin: 26px 0 0; font-size: 17px; line-height: 1.55; }
 .d-how { list-style: none; margin: 28px 0 0; padding: 18px 0 0; border-top: 1px solid var(--line); font-size: 14px; line-height: 1.9; opacity: .85; }
 .d-how b { font-weight: 600; }
-.d-qr { display: flex; align-items: center; gap: 16px; margin-top: 30px; }
-.d-qr img { width: 96px; height: 96px; border-radius: 8px; flex: none; }
+.d-qr { display: flex; align-items: center; gap: 20px; margin-top: 30px; }
+.d-qr img { width: 88px; height: 88px; flex: none; box-sizing: content-box; }
+/* the code is trimmed so it lines up with the text; on the umber pages it needs its own sand margin to scan */
+html.desk[data-theme="U"] .d-qr img { padding: 8px; background: var(--sand); border-radius: 6px; }
 .d-qr p { margin: 0; font-size: 14px; line-height: 1.5; opacity: .85; }
 
 .d-map { position: relative; }
