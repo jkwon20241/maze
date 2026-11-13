@@ -178,3 +178,67 @@ html.desk[data-theme="U"] .d-qr img { padding: 8px; background: var(--sand); bor
   html.desk #app { grid-template-columns: clamp(240px, 30vw, 340px) auto; }
   html.desk .d-map { display: none; }
 }
+
+/* ---------- install sheet (opened from the "add to Home Screen" QR code; phones and tablets only) ---------- */
+.ins {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: calc(env(safe-area-inset-top) + 32px) 28px calc(env(safe-area-inset-bottom) + 32px);
+  background: var(--sand);
+  color: var(--umber);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  touch-action: auto;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: opacity .35s ease;
+}
+.ins.out { opacity: 0; pointer-events: none; }
+.ins-in { width: 100%; max-width: 380px; }
+.ins-mark {
+  width: 180px;
+  aspect-ratio: 816 / 192;
+  background-color: currentColor;
+  -webkit-mask: url(img/wordmark.png) left center / contain no-repeat;
+  mask: url(img/wordmark.png) left center / contain no-repeat;
+}
+.ins h2 { margin: 36px 0 0; font-size: 24px; font-weight: 600; line-height: 1.25; }
+.ins-lead { margin: 12px 0 0; font-size: 16px; line-height: 1.5; opacity: .85; }
+.ins-btn {
+  display: block;
+  width: 100%;
+  margin-top: 30px;
+  padding: 16px;
+  border: 0;
+  border-radius: 0;
+  background: var(--umber);
+  color: var(--sand);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.ins-btn[hidden], .ins-done[hidden], .ins-steps[hidden] { display: none; }
+.ins-steps { margin: 30px 0 0; padding: 22px 0 0 1.3em; border-top: 1px solid rgba(76, 55, 44, .22); font-size: 15px; line-height: 1.5; }
+.ins-steps li { margin: 0 0 12px; padding-left: 4px; }
+.ins-steps b { font-weight: 600; }
+/* when the one-tap button is available, the manual steps step back */
+.ins-steps.alt { font-size: 13px; opacity: .6; }
+.ins-ico { width: 14px; height: 17px; margin: 0 4px -2px 2px; color: var(--vermilion); }
+.ins-done { margin: 30px 0 0; font-size: 17px; line-height: 1.5; }
+.ins-skip {
+  margin-top: 26px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

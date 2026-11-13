@@ -3,6 +3,10 @@
    Images are Figma renders; see assets.js. */
 (() => {
   'use strict';
+  // ?add (from the "add to Home Screen" QR code) shows the install sheet once; drop it from the address
+  // right away so a Home Screen copy saved from this page opens straight into the prototype.
+  const ADD = /(^|[?&])add(=|&|$)/.test(location.search);
+  if (ADD) history.replaceState(null, '', location.pathname);
   /* ---------- stale-copy check: if the published page has a newer version, load it ---------- */
   (function () {
     const mine = ((document.currentScript && document.currentScript.src) || '').match(/v=(\w+)/);
@@ -14,7 +18,7 @@
         if (!live || live[1] === mine[1]) return;
         let tried = false;
         try { tried = sessionStorage.getItem('maze-upd') === live[1]; sessionStorage.setItem('maze-upd', live[1]); } catch (e) {}
-        if (!tried) location.replace(location.pathname + '?v=' + live[1]);
+        if (!tried) location.replace(location.pathname + '?v=' + live[1] + (ADD ? '&add' : ''));
       })
       .catch(() => {});
   })();
@@ -626,6 +630,66 @@
     }, { once: true });
     document.addEventListener('fullscreenchange', layout);
     document.addEventListener('webkitfullscreenchange', layout);
+  })();
+
+  /* ---------- web app install: service worker (Chrome needs one to offer its install prompt) ---------- */
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+  let installEvt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    installEvt = e;
+    if (window.MAZE_onInstallable) window.MAZE_onInstallable();
+  });
+
+  /* ---------- install sheet: shown once when the page is opened from the "add" QR code ---------- */
+  (function () {
+    const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    if (!ADD || standalone || document.documentElement.classList.contains('desk')) return;
+    const ua = navigator.userAgent;
+    const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const share = '<svg class="ins-ico" viewBox="0 0 20 24" aria-hidden="true"><path d="M10 15V2M5.5 6.5 10 2l4.5 4.5M6.5 10H3.5v12h13V10h-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const steps = ios
+      ? `<li>Tap ${share}<b>Share</b>. In Safari it may sit inside the <b>•••</b> menu beside the address bar.</li>
+         <li>Choose <b>Add to Home Screen</b>. Scroll down if you don't see it.</li>
+         <li>Leave <b>Open as Web App</b> on, then tap <b>Add</b>.</li>`
+      : `<li>Tap <b>⋮</b> in the top corner of your browser.</li>
+         <li>Choose <b>Add to Home screen</b> or <b>Install app</b>.</li>
+         <li>Tap <b>Install</b> or <b>Add</b>.</li>`;
+    const el = document.createElement('section');
+    el.className = 'ins';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', 'Add MÆZE to your Home Screen');
+    el.innerHTML = `<div class="ins-in">
+        <div class="ins-mark" aria-hidden="true"></div>
+        <h2>Keep MÆZE on your phone</h2>
+        <p class="ins-lead">Add it to your Home Screen and it opens full screen, like an app, every time.</p>
+        <button class="ins-btn" type="button" hidden>Add to Home Screen</button>
+        <ol class="ins-steps">${steps}</ol>
+        <p class="ins-done" hidden>Added. Open MÆZE from your Home Screen to begin.</p>
+        <button class="ins-skip" type="button">Not now, start here →</button>
+      </div>`;
+    document.body.appendChild(el);
+    const btn = el.querySelector('.ins-btn'), list = el.querySelector('.ins-steps'), done = el.querySelector('.ins-done');
+    const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 350); };
+    // Android/Chrome: one tap opens the browser's own install dialog
+    const ready = () => { if (installEvt) { btn.hidden = false; list.classList.add('alt'); } };
+    window.MAZE_onInstallable = ready;
+    ready();
+    btn.addEventListener('click', async () => {
+      if (!installEvt) return;
+      const e = installEvt;
+      installEvt = null;
+      e.prompt();
+      const choice = await e.userChoice.catch(() => null);
+      if (choice && choice.outcome === 'accepted') { btn.hidden = true; list.hidden = true; done.hidden = false; }
+      else { btn.hidden = true; list.classList.remove('alt'); }
+    });
+    window.addEventListener('appinstalled', () => { btn.hidden = true; list.hidden = true; done.hidden = false; });
+    el.querySelector('.ins-skip').addEventListener('click', close);
+    // keep the first tap here from triggering the full-screen request
+    el.addEventListener('pointerup', (e) => e.stopPropagation());
   })();
 
   /* ---------- start ---------- */
